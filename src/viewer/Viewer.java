@@ -1,5 +1,6 @@
 package viewer;
 
+import binarization.Bernsen;
 import binarization.Niblack;
 import filtration.SimpleFilter;
 import histogram.HistogramOperations;
@@ -36,6 +37,7 @@ public class Viewer extends JFrame {
     private final JMenuItem manualTresh = new JMenuItem("Manual Treshold");
     private final JMenuItem otsuTresh = new JMenuItem("OTSU");
     private final JMenuItem niblack = new JMenuItem("Niblack");
+    private final JMenuItem bernsen = new JMenuItem("Bernsen");
     private final JMenuItem simpleFilter = new JMenuItem("Simple Filter");
     private final JLabel imageLabel = new JLabel();
     private final JPanel imagePanel = new JPanel();
@@ -83,6 +85,7 @@ public class Viewer extends JFrame {
         tresholding.add(manualTresh);
         tresholding.add(otsuTresh);
         tresholding.add(niblack);
+        tresholding.add(bernsen);
         filtration.add(simpleFilter);
 
         this.setVisible(true);
@@ -508,6 +511,20 @@ public class Viewer extends JFrame {
                             }
                         }
                     }
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+        bernsen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null){
+                    String contrastThreshold = JOptionPane.showInputDialog(null, "Enter contrast Threshold", null);
+                    int constantThresh = Integer.parseInt(contrastThreshold);
+                    String pixelThreshold = JOptionPane.showInputDialog(null, "Enter pixel threshold", null);
+                    int pixelThresh = Integer.parseInt(pixelThreshold);
+                    BufferedImage newImage = Bernsen.bernsen(image, constantThresh, pixelThresh);
                     imageLabel.setIcon(new ImageIcon(newImage));
                     image = newImage;
                 }

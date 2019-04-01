@@ -22,7 +22,7 @@ public abstract class Niblack {
                 int counter = 0;
                 for(int k = w-shift; k<=w+shift;k++){
                     for(int m=h-shift; m<=h+shift; m++){
-                        if (k >= 0 && k < copy.getHeight() && m >= 0 && m < copy.getWidth()){
+                        if (k >= 0 && k < copy.getWidth() && m >= 0 && m < copy.getHeight()){
                             Color color = new Color(copy.getRGB(k, m));
                             int c = color.getRed();
                             list.add(c);
@@ -31,7 +31,8 @@ public abstract class Niblack {
                         }
                     }
                 }
-                double srednia = sum/counter;
+                double srednia =0;
+                srednia = sum / counter;
                 double[] values = new double[list.size()];
                 int index = -1;
                 for (Integer i : list) {
