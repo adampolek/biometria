@@ -1,5 +1,6 @@
 package viewer;
 
+import binarization.Niblack;
 import histogram.HistogramOperations;
 import shared.ImageHandling;
 import shared.ImageOperations;
@@ -13,7 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Viewer extends JFrame{
+public class Viewer extends JFrame {
     private final JMenuBar menuBar = new JMenuBar();
     private final JMenu files = new JMenu("File");
     private final JMenuItem loadImage = new JMenuItem("Load image");
@@ -32,6 +33,7 @@ public class Viewer extends JFrame{
     private final JMenuItem grayTresh = new JMenuItem("Grey scale gray");
     private final JMenuItem manualTresh = new JMenuItem("Manual Treshold");
     private final JMenuItem otsuTresh = new JMenuItem("OTSU");
+    private final JMenuItem niblack = new JMenuItem("Niblack");
     private final JLabel imageLabel = new JLabel();
     private final JPanel imagePanel = new JPanel();
     private final JPanel editPanel = new JPanel();
@@ -44,10 +46,10 @@ public class Viewer extends JFrame{
     private final JTextField fieldB = new JTextField("0");
     private final JButton accept = new JButton("Change");
 
-    int pixelX=0;
-    int pixelY=0;
-    int width= 0;
-    int height =0;
+    int pixelX = 0;
+    int pixelY = 0;
+    int width = 0;
+    int height = 0;
     public BufferedImage image = null;
 
     public Viewer() {
@@ -76,41 +78,42 @@ public class Viewer extends JFrame{
         tresholding.add(grayTresh);
         tresholding.add(manualTresh);
         tresholding.add(otsuTresh);
+        tresholding.add(niblack);
 
         this.setVisible(true);
 
         this.add(this.menuBar);
-        menuBar.setBounds(0,0,screenWidth,screenHeight/40);
+        menuBar.setBounds(0, 0, screenWidth, screenHeight / 40);
         imagePanel.setLayout(null);
         imagePanel.add(imageLabel);
         this.add(scrollPane);
-        imagePanel.setBounds(screenWidth/96,screenHeight/21, (int)(screenWidth/(1.2)), screenHeight-2*screenHeight/15);
+        imagePanel.setBounds(screenWidth / 96, screenHeight / 21, (int) (screenWidth / (1.2)), screenHeight - 2 * screenHeight / 15);
         imagePanel.setVisible(true);
 
-        scrollPane.setBounds(screenWidth/96,screenHeight/21, imagePanel.getWidth(), imagePanel.getHeight());
-        imageLabel.setBounds(JLabel.CENTER,JLabel.CENTER,imagePanel.getWidth(),imagePanel.getHeight());
+        scrollPane.setBounds(screenWidth / 96, screenHeight / 21, imagePanel.getWidth(), imagePanel.getHeight());
+        imageLabel.setBounds(JLabel.CENTER, JLabel.CENTER, imagePanel.getWidth(), imagePanel.getHeight());
         this.add(imagePanel);
         scrollPane.setViewportView(imagePanel);
 
         this.add(editPanel);
-        editPanel.setBounds((screenWidth/(96)*2)+(int)(screenWidth/(1.2)), screenHeight/21, screenWidth - (int)(screenWidth/(1.2)) - screenWidth/96 * 3 ,screenHeight-2*screenHeight/15);
+        editPanel.setBounds((screenWidth / (96) * 2) + (int) (screenWidth / (1.2)), screenHeight / 21, screenWidth - (int) (screenWidth / (1.2)) - screenWidth / 96 * 3, screenHeight - 2 * screenHeight / 15);
         editPanel.setVisible(true);
 
         editPanel.setLayout(null);
         editPanel.add(labelR);
-        labelR.setBounds(editPanel.getWidth()/20, editPanel.getHeight()/40, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/21);
+        labelR.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() / 40, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 21);
         editPanel.add(labelG);
-        labelG.setBounds(editPanel.getWidth()/20, editPanel.getHeight()/40+screenHeight/21, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/21);
+        labelG.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() / 40 + screenHeight / 21, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 21);
         editPanel.add(labelB);
-        labelB.setBounds(editPanel.getWidth()/20, editPanel.getHeight()/40+(screenHeight/21)*2, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/21);
+        labelB.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() / 40 + (screenHeight / 21) * 2, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 21);
         editPanel.add(fieldR);
-        fieldR.setBounds(editPanel.getWidth()/20+editPanel.getWidth()/2-2*(editPanel.getWidth()/20), editPanel.getHeight()/40, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/30);
+        fieldR.setBounds(editPanel.getWidth() / 20 + editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), editPanel.getHeight() / 40, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 30);
         editPanel.add(fieldG);
-        fieldG.setBounds(editPanel.getWidth()/20+editPanel.getWidth()/2-2*(editPanel.getWidth()/20), editPanel.getHeight()/40+screenHeight/30+screenHeight/50, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/30);
+        fieldG.setBounds(editPanel.getWidth() / 20 + editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), editPanel.getHeight() / 40 + screenHeight / 30 + screenHeight / 50, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 30);
         editPanel.add(fieldB);
-        fieldB.setBounds(editPanel.getWidth()/20+editPanel.getWidth()/2-2*(editPanel.getWidth()/20), editPanel.getHeight()/40+screenHeight/30+screenHeight/15, editPanel.getWidth()/2-2*(editPanel.getWidth()/20), screenHeight/30);
+        fieldB.setBounds(editPanel.getWidth() / 20 + editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), editPanel.getHeight() / 40 + screenHeight / 30 + screenHeight / 15, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 30);
         editPanel.add(accept);
-        accept.setBounds(editPanel.getWidth()/20, editPanel.getHeight()-editPanel.getHeight()/15, editPanel.getWidth()/2, editPanel.getHeight()/30);
+        accept.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() - editPanel.getHeight() / 15, editPanel.getWidth() / 2, editPanel.getHeight() / 30);
 
         this.loadImage.addActionListener((ActionEvent e) -> {
             JFileChooser imageOpener = new JFileChooser();
@@ -118,7 +121,7 @@ public class Viewer extends JFrame{
                 @Override
                 public boolean accept(File f) {
                     String fileName = f.getName().toLowerCase();
-                    if(fileName.endsWith(".jpg") || fileName.endsWith(".png")
+                    if (fileName.endsWith(".jpg") || fileName.endsWith(".png")
                             || fileName.endsWith(".tiff")) {
                         return true;
                     } else return false;
@@ -131,19 +134,19 @@ public class Viewer extends JFrame{
             });
 
             int returnValue = imageOpener.showDialog(null, "Select image");
-            if(returnValue == JFileChooser.APPROVE_OPTION) {
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
                 BufferedImage img = ImageHandling.loadImage(imageOpener.getSelectedFile().getPath());
 //                if(img.getHeight()<imagePanel.getHeight()){
 //                    scrollPane.setViewportView(imagePanel);
 //                }else{
-                    scrollPane.setViewportView(imageLabel);
+                scrollPane.setViewportView(imageLabel);
 //                }
                 this.imageLabel.setIcon(new ImageIcon(img));
                 imageLabel.setSize(img.getWidth(), img.getHeight());
-                image=img;
+                image = img;
             }
-            width=image.getWidth();
-            height=image.getHeight();
+            width = image.getWidth();
+            height = image.getHeight();
         });
 
         this.saveImage.addActionListener((ActionEvent e) -> {
@@ -158,20 +161,20 @@ public class Viewer extends JFrame{
             imageSaver.addChoosableFileFilter(tiffFilter);
             imageSaver.addChoosableFileFilter(bmpFilter);
             int returnValue = imageSaver.showDialog(null, "Save");
-            if(returnValue == JFileChooser.APPROVE_OPTION){
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
                 BufferedImage img = ImageHandling.convertIconToImage((ImageIcon) this.imageLabel.getIcon());
-                if(imageSaver.getFileFilter().getDescription().equals("JPG format image (*.jpg)")){
-                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString()+".jpg");
-                }else if(imageSaver.getFileFilter().getDescription().equals("PNG format image (*.png)")){
-                    ImageHandling.saveImage(img, "png", imageSaver.getSelectedFile().toString()+".png");
-                }else if(imageSaver.getFileFilter().getDescription().equals("TIFF format image (*.tiff)")){
+                if (imageSaver.getFileFilter().getDescription().equals("JPG format image (*.jpg)")) {
+                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString() + ".jpg");
+                } else if (imageSaver.getFileFilter().getDescription().equals("PNG format image (*.png)")) {
+                    ImageHandling.saveImage(img, "png", imageSaver.getSelectedFile().toString() + ".png");
+                } else if (imageSaver.getFileFilter().getDescription().equals("TIFF format image (*.tiff)")) {
                     System.out.println("Jestem tiff");
-                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString()+".tiff");
-                }else if(imageSaver.getFileFilter().getDescription().equals("BMP format image (*.bmp)")){
-                    ImageHandling.saveImage(img, "bmp", imageSaver.getSelectedFile().toString()+".bmp");
-                }else {
+                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString() + ".tiff");
+                } else if (imageSaver.getFileFilter().getDescription().equals("BMP format image (*.bmp)")) {
+                    ImageHandling.saveImage(img, "bmp", imageSaver.getSelectedFile().toString() + ".bmp");
+                } else {
                     System.out.println(imageSaver.getFileFilter().getDescription());
-                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString()+".jpg");
+                    ImageHandling.saveImage(img, "jpg", imageSaver.getSelectedFile().toString() + ".jpg");
                 }
             }
         });
@@ -179,7 +182,7 @@ public class Viewer extends JFrame{
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     int colorValue = image.getRGB(e.getX(), e.getY());
                     Color color = new Color(colorValue);
                     fieldR.setText(String.valueOf((color.getRed())));
@@ -209,17 +212,17 @@ public class Viewer extends JFrame{
             double scale;
             int mouseRotation = e.getWheelRotation();
             if (mouseRotation >= 0) {
-                scale= 0.95;
+                scale = 0.95;
 
-            }else {
+            } else {
                 scale = 1.05;
             }
             BufferedImage bufferedImage = ImageHandling.convertIconToImage((ImageIcon) imageLabel.getIcon());
             int newImageWidth = (int) (bufferedImage.getWidth() * scale);
             int newImageHeight = (int) (bufferedImage.getHeight() * scale);
-            BufferedImage scaleImage = new BufferedImage(newImageWidth , newImageHeight, bufferedImage.getType());
+            BufferedImage scaleImage = new BufferedImage(newImageWidth, newImageHeight, bufferedImage.getType());
             Graphics2D g = scaleImage.createGraphics();
-            g.drawImage(bufferedImage, 0, 0, newImageWidth , newImageHeight , null);
+            g.drawImage(bufferedImage, 0, 0, newImageWidth, newImageHeight, null);
             g.dispose();
             imageLabel.setIcon(new ImageIcon(scaleImage));
         });
@@ -227,7 +230,7 @@ public class Viewer extends JFrame{
         lightenImage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     BufferedImage newImage = ImageOperations.lightenImage(image);
                     imageLabel.setIcon(new ImageIcon(image));
                 }
@@ -237,7 +240,7 @@ public class Viewer extends JFrame{
         darkenImage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     BufferedImage newImage = ImageOperations.darkenImage(image);
                     imageLabel.setIcon(new ImageIcon(image));
                 }
@@ -247,7 +250,7 @@ public class Viewer extends JFrame{
         createHistogram.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     HistogramsViewer histogramsViewer = new HistogramsViewer();
                     histogramsViewer.generateHistograms(HistogramOperations.calculateHistograms(image));
                     histogramsViewer.setVisible(true);
@@ -258,7 +261,7 @@ public class Viewer extends JFrame{
         stretchHistogram.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     List values = HistogramOperations.getValues(HistogramOperations.calculateHistograms(image));
                     BufferedImage newImage = image;
                     List<int[]> luts = HistogramOperations.getLUT(values);
@@ -293,10 +296,10 @@ public class Viewer extends JFrame{
         alignHistogram.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!=null) {
+                if (image != null) {
                     List values = HistogramOperations.getValues(HistogramOperations.calculateHistograms(image));
                     BufferedImage newImage = image;
-                    List distrs = HistogramOperations.getDistr(newImage,HistogramOperations.calculateHistograms(newImage));
+                    List distrs = HistogramOperations.getDistr(newImage, HistogramOperations.calculateHistograms(newImage));
                     List<double[]> _distrs = HistogramOperations.getDistrLUT(distrs);
                     double[] distr_LUT_R = _distrs.get(0);
                     double[] distr_LUT_G = _distrs.get(1);
@@ -304,8 +307,8 @@ public class Viewer extends JFrame{
                     int colorValue;
                     Color color;
                     Color newColor;
-                    int R_value,G_value,B_value;
-                    for(int w = 0; w < newImage.getWidth(); w++) {
+                    int R_value, G_value, B_value;
+                    for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             colorValue = newImage.getRGB(w, h);
                             color = new Color(colorValue);
@@ -329,9 +332,9 @@ public class Viewer extends JFrame{
         redTresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image != null){
+                if (image != null) {
                     BufferedImage newImage = image;
-                    for(int w = 0; w < newImage.getWidth(); w++) {
+                    for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
                             int colRed = c.getRed();
@@ -346,9 +349,9 @@ public class Viewer extends JFrame{
         blueTresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image != null){
+                if (image != null) {
                     BufferedImage newImage = image;
-                    for(int w = 0; w < newImage.getWidth(); w++) {
+                    for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
                             int colBlue = c.getRed();
@@ -363,9 +366,9 @@ public class Viewer extends JFrame{
         greenTresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image != null){
+                if (image != null) {
                     BufferedImage newImage = image;
-                    for(int w = 0; w < newImage.getWidth(); w++) {
+                    for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
                             int colGreen = c.getGreen();
@@ -380,12 +383,12 @@ public class Viewer extends JFrame{
         grayTresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image != null){
+                if (image != null) {
                     BufferedImage newImage = image;
-                    for(int w = 0; w < newImage.getWidth(); w++) {
+                    for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
-                            int colAvg = (c.getRed() + c.getGreen() + c.getBlue())/3;
+                            int colAvg = (c.getRed() + c.getGreen() + c.getBlue()) / 3;
                             newImage.setRGB(w, h, new Color(colAvg, colAvg, colAvg).getRGB());
                         }
                     }
@@ -408,10 +411,10 @@ public class Viewer extends JFrame{
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
                             int colRed = c.getRed();
-                            if (colRed <= nameInt){
-                                newImage.setRGB(w,h, Color.BLACK.getRGB());
-                            }else{
-                                newImage.setRGB(w,h, Color.WHITE.getRGB());
+                            if (colRed <= nameInt) {
+                                newImage.setRGB(w, h, Color.BLACK.getRGB());
+                            } else {
+                                newImage.setRGB(w, h, Color.WHITE.getRGB());
                             }
                         }
                     }
@@ -423,37 +426,37 @@ public class Viewer extends JFrame{
         otsuTresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(image!= null){
+                if (image != null) {
                     double p0 = 0;
                     double d0 = 0;
                     double p1 = 0;
                     double d1 = 0;
                     int numOfPixels = image.getHeight() * image.getWidth();
-                    int []histogram = new int[256];
+                    int[] histogram = new int[256];
                     histogram = HistogramOperations.calcOneHist(image);
                     double eta[] = new double[256];
-                    for(int t = 1; t <eta.length; t++){
-                        p0 =0;
-                        p1 =0;
-                        d0 =0;
-                        d1 =0;
-                        for(int i = 0; i < t-1; i++){
-                            p0= p0 + histogram[i];
-                            d0= d0 + histogram[i]*i;
+                    for (int t = 1; t < eta.length; t++) {
+                        p0 = 0;
+                        p1 = 0;
+                        d0 = 0;
+                        d1 = 0;
+                        for (int i = 0; i < t - 1; i++) {
+                            p0 = p0 + histogram[i];
+                            d0 = d0 + histogram[i] * i;
                         }
-                        for(int i=t; i<=255; i++){
+                        for (int i = t; i <= 255; i++) {
                             p1 = p1 + histogram[i];
-                            d1 = d1 + histogram[i]*i;
+                            d1 = d1 + histogram[i] * i;
                         }
-                        d0=d0/p0;
-                        d1=d1/p1;
-                        p0=p0/(double)numOfPixels;
-                        p1=p1/(double)numOfPixels;
-                        eta[t] = p0 * p1 *Math.pow((d0 - d1), 2);
+                        d0 = d0 / p0;
+                        d1 = d1 / p1;
+                        p0 = p0 / (double) numOfPixels;
+                        p1 = p1 / (double) numOfPixels;
+                        eta[t] = p0 * p1 * Math.pow((d0 - d1), 2);
                     }
                     int ind_max = 0;
-                    for (int i = 0; i <eta.length; i++) {
-                        if(eta[i]>eta[ind_max]){
+                    for (int i = 0; i < eta.length; i++) {
+                        if (eta[i] > eta[ind_max]) {
                             ind_max = i;
                         }
                     }
@@ -463,10 +466,46 @@ public class Viewer extends JFrame{
                         for (int h = 0; h < newImage.getHeight(); h++) {
                             Color c = new Color(newImage.getRGB(w, h));
                             int colRed = c.getRed();
-                            if (colRed <= ind_max){
-                                newImage.setRGB(w,h, Color.BLACK.getRGB());
-                            }else{
-                                newImage.setRGB(w,h, Color.WHITE.getRGB());
+                            if (colRed <= ind_max) {
+                                newImage.setRGB(w, h, Color.BLACK.getRGB());
+                            } else {
+                                newImage.setRGB(w, h, Color.WHITE.getRGB());
+                            }
+                        }
+                    }
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+        niblack.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (image != null) {
+                    String constantA = JOptionPane.showInputDialog(null, "Enter constant a", null);
+                    double a = Double.parseDouble(constantA);
+                    String windowSize = JOptionPane.showInputDialog(null, "Enter window size", null);
+                    int size = Integer.parseInt(windowSize);
+                    int[][] tresh = new int[image.getHeight()][image.getWidth()];
+                    tresh = Niblack.calculateTresholdsMasaka(image, a, size);
+                    for (int i = 0; i < image.getHeight(); i++) {
+                        for (int j = 0; j < image.getWidth(); j++) {
+                            if (tresh[i][j] != 0) {
+                                System.out.print(" &&" + tresh[i][j] + "&& ");
+                            } else
+                                System.out.print(tresh[i][j] + ", ");
+                        }
+                        System.out.println();
+                    }
+                    BufferedImage newImage = image;
+                    for (int w = 0; w < newImage.getWidth(); w++) {
+                        for (int h = 0; h < newImage.getHeight(); h++) {
+                            Color c = new Color(newImage.getRGB(w, h));
+                            int colRed = c.getRed();
+                            if (colRed <= tresh[w][h]) {
+                                newImage.setRGB(w, h, Color.BLACK.getRGB());
+                            } else {
+                                newImage.setRGB(w, h, Color.WHITE.getRGB());
                             }
                         }
                     }
