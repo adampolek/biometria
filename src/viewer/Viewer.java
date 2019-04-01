@@ -1,6 +1,7 @@
 package viewer;
 
 import binarization.Niblack;
+import filtration.SimpleFilter;
 import histogram.HistogramOperations;
 import shared.ImageHandling;
 import shared.ImageOperations;
@@ -27,6 +28,7 @@ public class Viewer extends JFrame {
     private final JMenuItem lightenImage = new JMenuItem("lighten Image");
     private final JMenuItem darkenImage = new JMenuItem("Darken Image");
     private final JMenu tresholding = new JMenu("Tresholding");
+    private final JMenu filtration = new JMenu("Filtration");
     private final JMenuItem redTresh = new JMenuItem("Grey scale red");
     private final JMenuItem greenTresh = new JMenuItem("Grey scale green");
     private final JMenuItem blueTresh = new JMenuItem("Grey scale blue");
@@ -34,6 +36,7 @@ public class Viewer extends JFrame {
     private final JMenuItem manualTresh = new JMenuItem("Manual Treshold");
     private final JMenuItem otsuTresh = new JMenuItem("OTSU");
     private final JMenuItem niblack = new JMenuItem("Niblack");
+    private final JMenuItem simpleFilter = new JMenuItem("Simple Filter");
     private final JLabel imageLabel = new JLabel();
     private final JPanel imagePanel = new JPanel();
     private final JPanel editPanel = new JPanel();
@@ -67,6 +70,7 @@ public class Viewer extends JFrame {
         this.menuBar.add(imageMenu);
         this.menuBar.add(histogramButton);
         this.menuBar.add(tresholding);
+        this.menuBar.add(filtration);
         histogramButton.add(createHistogram);
         histogramButton.add(stretchHistogram);
         histogramButton.add(alignHistogram);
@@ -79,6 +83,7 @@ public class Viewer extends JFrame {
         tresholding.add(manualTresh);
         tresholding.add(otsuTresh);
         tresholding.add(niblack);
+        filtration.add(simpleFilter);
 
         this.setVisible(true);
 
@@ -486,17 +491,11 @@ public class Viewer extends JFrame {
                     double a = Double.parseDouble(constantA);
                     String windowSize = JOptionPane.showInputDialog(null, "Enter window size", null);
                     int size = Integer.parseInt(windowSize);
-                    int[][] tresh = new int[image.getHeight()][image.getWidth()];
-                    tresh = Niblack.calculateTresholdsMasaka(image, a, size);
-                    for (int i = 0; i < image.getHeight(); i++) {
-                        for (int j = 0; j < image.getWidth(); j++) {
-                            if (tresh[i][j] != 0) {
-                                System.out.print(" &&" + tresh[i][j] + "&& ");
-                            } else
-                                System.out.print(tresh[i][j] + ", ");
-                        }
-                        System.out.println();
+                    if(size%2!=1){
+                        return;
                     }
+                    int[][] tresh = new int[image.getWidth()][image.getHeight()];
+                    tresh = Niblack.calculateTresholds(image, a, size);
                     BufferedImage newImage = image;
                     for (int w = 0; w < newImage.getWidth(); w++) {
                         for (int h = 0; h < newImage.getHeight(); h++) {
@@ -509,6 +508,16 @@ public class Viewer extends JFrame {
                             }
                         }
                     }
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+        simpleFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null){
+                    BufferedImage newImage = SimpleFilter.filterImage(image);
                     imageLabel.setIcon(new ImageIcon(newImage));
                     image = newImage;
                 }

@@ -12,82 +12,38 @@ import java.util.List;
 public abstract class Niblack {
 
     public static int[][] calculateTresholds(BufferedImage img, double a, int window) {
-        int[][] tresholds = new int[img.getHeight()][img.getWidth()];
+        int[][] tresholds = new int[img.getWidth()][img.getHeight()];
         BufferedImage copy = deepCopy(img);
-        Point[][] pom = new Point[window][window];
         int shift = window / 2;
-        for (int i = 0; i < img.getWidth(); i++) {
-            for (int j = 0; j < img.getHeight(); j++) {
+        List<Integer> list = new ArrayList<>();
+        for(int w=0; w<copy.getWidth();w++){
+            for(int h=0; h<copy.getHeight(); h++){
                 int sum = 0;
-                List list = new ArrayList();
                 int counter = 0;
-                for (int k = i - shift; k < i + shift; k++) {
-                    for (int l = j - shift; l < i + shift; l++) {
-                        if (k >= 0 && l >= 0 && k < img.getWidth() && l < img.getHeight()) {
+                for(int k = w-shift; k<=w+shift;k++){
+                    for(int m=h-shift; m<=h+shift; m++){
+                        if (k >= 0 && k < copy.getHeight() && m >= 0 && m < copy.getWidth()){
+                            Color color = new Color(copy.getRGB(k, m));
+                            int c = color.getRed();
+                            list.add(c);
+                            sum = sum + c;
                             counter++;
-                            Color c = new Color(copy.getRGB(k, l));
-                            int r = c.getRed();
-                            list.add(r);
-                            sum = sum + r;
                         }
                     }
                 }
-                double srednia = 0;
-                if (counter != 0) {
-                    srednia = sum / counter;
-                }
+                double srednia = sum/counter;
                 double[] values = new double[list.size()];
                 int index = -1;
-                for (Object o : list) {
+                for (Integer i : list) {
                     index++;
-                    values[index] = Double.parseDouble(o.toString());
+                    values[index] = Double.parseDouble(i.toString());
                 }
                 StandardDeviation standardDeviation = new StandardDeviation();
                 double result = standardDeviation.evaluate(values);
-                tresholds[i][j] = (int) (srednia + a * result);
+                tresholds[w][h] = (int) (srednia + a * result);
+                list.clear();
             }
         }
-        return tresholds;
-    }
-
-    public static int[][] calculateTresholdsMasaka(BufferedImage img, double a, int window) {
-        int[][] tresholds = new int[img.getHeight()][img.getWidth()];
-        BufferedImage copy = deepCopy(img);
-        Point[][] pom = new Point[window][window];
-        int shift = window / 2;
-
-        for (int i = 0; i < copy.getWidth(); i++) {
-            for (int j = 0; j < copy.getHeight(); j++) {
-                int sum = 0, counter = 0, srednia = 0;
-                List<Double> list = new ArrayList<>();
-
-                for (int k = i - shift; k < i + shift; i++) {
-                    for (int l = j - shift; l < j + shift; j++) {
-                        if (k > 0 && l > 0 && k < copy.getWidth() && l < copy.getHeight()) {
-                            Color c = new Color(copy.getRGB(k, l));
-                            counter++;
-                            sum += c.getRed();
-                            list.add((double) c.getRed());
-                        }
-                    }
-                }
-
-                if (counter > 0)
-                    srednia = sum / counter;
-
-                StandardDeviation standardDeviation = new StandardDeviation();
-
-                double[] values = new double[list.size()];
-                int q=-1;
-                for (double c : list)
-                    values[q++]= c;
-                double result = standardDeviation.evaluate(values);
-                tresholds[i][j] = (int) (srednia + a * result);
-
-            }
-        }
-
-
         return tresholds;
     }
 
