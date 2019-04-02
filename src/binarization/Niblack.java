@@ -32,7 +32,8 @@ public abstract class Niblack {
                     }
                 }
                 double srednia =0;
-                srednia = sum / counter;
+                if(counter>0)
+                    srednia = sum / counter;
                 double[] values = new double[list.size()];
                 int index = -1;
                 for (Integer i : list) {

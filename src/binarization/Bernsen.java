@@ -16,20 +16,20 @@ public class Bernsen {
                 for(int i=w-1; i<=w+1; i++){
                     for(int j=h-1; j<=h+1; j++){
                         if(i>=0 && i <copy.getWidth() && j>=0 && j<copy.getHeight()){
-                            Color color = new Color(copy.getRGB(i,j));
+                            Color color = new Color(img.getRGB(i,j));
                             int c = color.getRed();
                             if(c>max){
-                                c=max;
+                                max=c;
                             }
                             if(c<min){
-                                c=min;
+                                min=c;
                             }
                         }
                     }
                 }
-                int avg = min + max/2;
+                int avg = (min + max)/2;
                 int localContrast = max - min;
-                Color color = new Color(copy.getRGB(w,h));
+                Color color = new Color(img.getRGB(w,h));
                 int d=color.getRed();
                 if(localContrast<contrastThreshold){
                     if(avg>= setThreshold){
