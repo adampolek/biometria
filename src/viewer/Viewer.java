@@ -2,6 +2,7 @@ package viewer;
 
 import binarization.Bernsen;
 import binarization.Niblack;
+import filtration.ConvolutionalFilter;
 import filtration.SimpleFilter;
 import histogram.HistogramOperations;
 import shared.ImageHandling;
@@ -39,6 +40,7 @@ public class Viewer extends JFrame {
     private final JMenuItem niblack = new JMenuItem("Niblack");
     private final JMenuItem bernsen = new JMenuItem("Bernsen");
     private final JMenuItem simpleFilter = new JMenuItem("Simple Filter");
+    private final JMenuItem convolutionalFilter = new JMenuItem("Convolutional Filter");
     private final JLabel imageLabel = new JLabel();
     private final JPanel imagePanel = new JPanel();
     private final JPanel editPanel = new JPanel();
@@ -87,6 +89,7 @@ public class Viewer extends JFrame {
         tresholding.add(niblack);
         tresholding.add(bernsen);
         filtration.add(simpleFilter);
+        filtration.add(convolutionalFilter);
 
         this.setVisible(true);
 
@@ -535,6 +538,23 @@ public class Viewer extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(image!=null){
                     BufferedImage newImage = SimpleFilter.filterImage(image);
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+        convolutionalFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null) {
+                    int[][] values= new int[3][3];
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            String value = JOptionPane.showInputDialog(null, "Enter [" + i + "][" + j + "] value", null);
+                            values[i][j] = Integer.parseInt(value);
+                        }
+                    }
+                    BufferedImage newImage = ConvolutionalFilter.filterImage(image,values);
                     imageLabel.setIcon(new ImageIcon(newImage));
                     image = newImage;
                 }
