@@ -3,6 +3,7 @@ package viewer;
 import binarization.Bernsen;
 import binarization.Niblack;
 import filtration.ConvolutionalFilter;
+import filtration.MedianFilter;
 import filtration.SimpleFilter;
 import histogram.HistogramOperations;
 import shared.ImageHandling;
@@ -41,6 +42,8 @@ public class Viewer extends JFrame {
     private final JMenuItem bernsen = new JMenuItem("Bernsen");
     private final JMenuItem simpleFilter = new JMenuItem("Simple Filter");
     private final JMenuItem convolutionalFilter = new JMenuItem("Convolutional Filter");
+    private final JMenuItem median3Filter = new JMenuItem("Median filter 3x3");
+    private final JMenuItem median5Filter = new JMenuItem("Median filter 5x5");
     private final JLabel imageLabel = new JLabel();
     private final JPanel imagePanel = new JPanel();
     private final JPanel editPanel = new JPanel();
@@ -51,7 +54,21 @@ public class Viewer extends JFrame {
     private final JTextField fieldR = new JTextField("0");
     private final JTextField fieldG = new JTextField("0");
     private final JTextField fieldB = new JTextField("0");
+    private final JTextField mask1 = new JTextField("0");
+    private final JTextField mask2 = new JTextField("0");
+    private final JTextField mask3 = new JTextField("0");
+    private final JTextField mask4 = new JTextField("0");
+    private final JTextField mask5 = new JTextField("0");
+    private final JTextField mask6 = new JTextField("0");
+    private final JTextField mask7 = new JTextField("0");
+    private final JTextField mask8 = new JTextField("0");
+    private final JTextField mask9 = new JTextField("0");
     private final JButton accept = new JButton("Change");
+    private final JButton filterButton = new JButton("Filter Image");
+    private final JButton sobelFilter = new JButton("Sobel Filter");
+    private final JButton prewittFilter = new JButton("Prewitt Filter");
+    private final JButton laplaceFilter = new JButton("Laplace'a Filter");
+    private final JButton edgeDetection = new JButton("Edge Detection");
 
     int pixelX = 0;
     int pixelY = 0;
@@ -89,7 +106,9 @@ public class Viewer extends JFrame {
         tresholding.add(niblack);
         tresholding.add(bernsen);
         filtration.add(simpleFilter);
-        filtration.add(convolutionalFilter);
+        //filtration.add(convolutionalFilter);
+        filtration.add(median3Filter);
+        filtration.add(median5Filter);
 
         this.setVisible(true);
 
@@ -124,7 +143,36 @@ public class Viewer extends JFrame {
         editPanel.add(fieldB);
         fieldB.setBounds(editPanel.getWidth() / 20 + editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), editPanel.getHeight() / 40 + screenHeight / 30 + screenHeight / 15, editPanel.getWidth() / 2 - 2 * (editPanel.getWidth() / 20), screenHeight / 30);
         editPanel.add(accept);
-        accept.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() - editPanel.getHeight() / 15, editPanel.getWidth() / 2, editPanel.getHeight() / 30);
+        accept.setBounds(editPanel.getWidth() / 20, editPanel.getHeight() / 40 + screenHeight / 30 + screenHeight / 8, editPanel.getWidth() / 2, editPanel.getHeight() / 30);
+
+        editPanel.add(mask1);
+        mask1.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/3, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask2);
+        mask2.setBounds((editPanel.getWidth() / 20)*2 + editPanel.getWidth()/5, editPanel.getHeight()/3, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask3);
+        mask3.setBounds((editPanel.getWidth() / 20)*3 + (editPanel.getWidth()/5)*2, editPanel.getHeight()/3, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask4);
+        mask4.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/3 + editPanel.getHeight()/20 +editPanel.getHeight()/50, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask5);
+        mask5.setBounds((editPanel.getWidth() / 20)*2 + editPanel.getWidth()/5, editPanel.getHeight()/3 + editPanel.getHeight()/20 +editPanel.getHeight()/50, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask6);
+        mask6.setBounds((editPanel.getWidth() / 20)*3 + (editPanel.getWidth()/5)*2, editPanel.getHeight()/3 + editPanel.getHeight()/20 +editPanel.getHeight()/50, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask7);
+        mask7.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/3 + (editPanel.getHeight()/20)*2 +(editPanel.getHeight()/50)*2, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask8);
+        mask8.setBounds((editPanel.getWidth() / 20)*2 + editPanel.getWidth()/5, editPanel.getHeight()/3 + (editPanel.getHeight()/20)*2 +(editPanel.getHeight()/50)*2, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(mask9);
+        mask9.setBounds((editPanel.getWidth() / 20)*3 + (editPanel.getWidth()/5)*2, editPanel.getHeight()/3 + (editPanel.getHeight()/20)*2 +(editPanel.getHeight()/50)*2, editPanel.getWidth()/5, editPanel.getHeight()/20);
+        editPanel.add(filterButton);
+        filterButton.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/2 + editPanel.getHeight()/20, editPanel.getWidth() / 2, editPanel.getHeight() / 30 );
+        editPanel.add(prewittFilter);
+        prewittFilter.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/2 + editPanel.getHeight()/20 + editPanel.getHeight() / 30 + editPanel.getHeight()/60, editPanel.getWidth() / 2, editPanel.getHeight() / 30 );
+        editPanel.add(sobelFilter);
+        sobelFilter.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/2 + editPanel.getHeight()/20 + (editPanel.getHeight() / 30)*2 + editPanel.getHeight()/60, editPanel.getWidth() / 2, editPanel.getHeight() / 30 );
+        editPanel.add(laplaceFilter);
+        laplaceFilter.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/2 + editPanel.getHeight()/20 + (editPanel.getHeight() / 30)*3 + editPanel.getHeight()/60, editPanel.getWidth() / 2, editPanel.getHeight() / 30 );
+        editPanel.add(edgeDetection);
+        edgeDetection.setBounds(editPanel.getWidth() / 20, editPanel.getHeight()/2 + editPanel.getHeight()/20 + (editPanel.getHeight() / 30)*4 + editPanel.getHeight()/60, editPanel.getWidth() / 2, editPanel.getHeight() / 30 );
 
         this.loadImage.addActionListener((ActionEvent e) -> {
             JFileChooser imageOpener = new JFileChooser();
@@ -560,5 +608,88 @@ public class Viewer extends JFrame {
                 }
             }
         });
+
+        filterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null) {
+                    int[][] values= new int[3][3];
+                    values[0][0] = Integer.parseInt(mask1.getText());
+                    values[0][1] = Integer.parseInt(mask2.getText());
+                    values[0][2] = Integer.parseInt(mask3.getText());
+                    values[1][0] = Integer.parseInt(mask4.getText());
+                    values[1][1] = Integer.parseInt(mask5.getText());
+                    values[1][2] = Integer.parseInt(mask6.getText());
+                    values[2][0] = Integer.parseInt(mask7.getText());
+                    values[2][1] = Integer.parseInt(mask8.getText());
+                    values[2][2] = Integer.parseInt(mask9.getText());
+                    BufferedImage newImage = ConvolutionalFilter.filterImage(image,values);
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+
+        prewittFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setMask(1,1,1,0,0,0,-1,-1,-1);
+            }
+        });
+
+        sobelFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setMask(1,2,1,0,0,0,-1,-2,-1);
+            }
+        });
+
+        laplaceFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setMask(-1,-1,-1,-1,8,-1,-1,-1,-1);
+            }
+        });
+
+        edgeDetection.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setMask(1,1,1,-1,-2,1,-1,-1,1);
+            }
+        });
+        median3Filter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null){
+                    BufferedImage newImage = MedianFilter.medianFilter3x3(image);
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+
+        median5Filter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(image!=null){
+                    BufferedImage newImage = MedianFilter.medianFilter5x5(image);
+                    imageLabel.setIcon(new ImageIcon(newImage));
+                    image = newImage;
+                }
+            }
+        });
+
+    }
+
+    void setMask(int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8, int v9){
+        mask1.setText(String.valueOf(v1));
+        mask2.setText(String.valueOf(v2));
+        mask3.setText(String.valueOf(v3));
+        mask4.setText(String.valueOf(v4));
+        mask5.setText(String.valueOf(v5));
+        mask6.setText(String.valueOf(v6));
+        mask7.setText(String.valueOf(v7));
+        mask8.setText(String.valueOf(v8));
+        mask9.setText(String.valueOf(v9));
     }
 }
